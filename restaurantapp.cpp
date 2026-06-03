@@ -41,20 +41,46 @@ void RestaurantApp::setupUI() {
 // 1. HOME PAGE (Beranda Pemilihan Role)
 void RestaurantApp::createHomePage() {
   homePage = new QWidget;
-  QVBoxLayout *layout = new QVBoxLayout(homePage);
-  layout->setAlignment(Qt::AlignCenter);
+  QVBoxLayout *mainLayout = new QVBoxLayout(homePage);
+  mainLayout->setAlignment(Qt::AlignCenter);
+  mainLayout->setContentsMargins(40, 40, 40, 40);
 
-  QLabel *title = new QLabel("Selamat Datang di Gourmet Resto");
-  title->setObjectName("headerText");
+  QFrame *homeCard = new QFrame;
+  homeCard->setObjectName("homeCard");
+  QVBoxLayout *cardLayout = new QVBoxLayout(homeCard);
+  cardLayout->setContentsMargins(40, 40, 40, 40);
+  cardLayout->setSpacing(20);
+  cardLayout->setAlignment(Qt::AlignCenter);
+
+  QLabel *logoEmoji = new QLabel("🍳");
+  logoEmoji->setObjectName("logoEmoji");
+  logoEmoji->setAlignment(Qt::AlignCenter);
+
+  QLabel *title = new QLabel("Gourmet POS");
+  title->setObjectName("homeTitle");
+  title->setAlignment(Qt::AlignCenter);
+
+  QLabel *subtitle = new QLabel("Sistem Manajemen & Pemesanan Kasir Kafe");
+  subtitle->setObjectName("homeSubtitle");
+  subtitle->setAlignment(Qt::AlignCenter);
 
   QPushButton *btnConsumer = new QPushButton("Pesan Makanan (Konsumen)");
   QPushButton *btnLogin = new QPushButton("Login Pegawai (Kasir / Dapur)");
   QPushButton *btnWaiter = new QPushButton("Area Pelayan (Output)");
 
-  layout->addWidget(title, 0, Qt::AlignCenter);
-  layout->addWidget(btnConsumer);
-  layout->addWidget(btnLogin);
-  layout->addWidget(btnWaiter);
+  btnConsumer->setObjectName("primaryBtn");
+  btnLogin->setObjectName("secondaryBtn");
+  btnWaiter->setObjectName("secondaryBtn");
+
+  cardLayout->addWidget(logoEmoji);
+  cardLayout->addWidget(title);
+  cardLayout->addWidget(subtitle);
+  cardLayout->addSpacing(15);
+  cardLayout->addWidget(btnConsumer);
+  cardLayout->addWidget(btnLogin);
+  cardLayout->addWidget(btnWaiter);
+
+  mainLayout->addWidget(homeCard);
 
   connect(btnConsumer, &QPushButton::clicked, this,
           [=]() { stackedWidget->setCurrentIndex(1); });
@@ -70,11 +96,21 @@ void RestaurantApp::createHomePage() {
 void RestaurantApp::createConsumerPage() {
   consumerPage = new QWidget;
   QVBoxLayout *mainLayout = new QVBoxLayout(consumerPage);
+  mainLayout->setContentsMargins(30, 30, 30, 30);
+  mainLayout->setSpacing(20);
+
+  QLabel *header = new QLabel("Katalog Pemesanan Konsumen");
+  header->setObjectName("pageHeader");
+  mainLayout->addWidget(header);
+
   QHBoxLayout *contentLayout = new QHBoxLayout;
+  contentLayout->setSpacing(20);
 
   // Panel Kiri: Kategori
   QVBoxLayout *leftPanel = new QVBoxLayout;
-  QLabel *lblCategory = new QLabel("Kategori");
+  leftPanel->setSpacing(10);
+  QLabel *lblCategory = new QLabel("Pilih Kategori");
+  lblCategory->setObjectName("sectionHeader");
   QListWidget *categoryList = new QListWidget;
   categoryList->addItems({"Makanan Utama", "Minuman", "Cemilan", "Dessert"});
   leftPanel->addWidget(lblCategory);
@@ -82,7 +118,9 @@ void RestaurantApp::createConsumerPage() {
 
   // Panel Kanan: Katalog
   QVBoxLayout *rightPanel = new QVBoxLayout;
-  QLabel *lblCatalog = new QLabel("Katalog Makanan");
+  rightPanel->setSpacing(10);
+  QLabel *lblCatalog = new QLabel("Pilihan Menu Makanan & Minuman");
+  lblCatalog->setObjectName("sectionHeader");
   QListWidget *catalogList = new QListWidget;
   catalogList->addItems(
       {"Nasi Goreng Spesial - Rp 35.000", "Steak Wagyu - Rp 150.000",
@@ -91,15 +129,21 @@ void RestaurantApp::createConsumerPage() {
   rightPanel->addWidget(catalogList);
 
   contentLayout->addLayout(leftPanel, 1);
-  contentLayout->addLayout(rightPanel, 3);
+  contentLayout->addLayout(rightPanel, 2);
 
   // Tombol Bawah
   QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->setSpacing(15);
   QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
   QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
   QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
 
+  btnHome->setObjectName("secondaryBtn");
+  btnAddToCart->setObjectName("primaryBtn");
+  btnViewCart->setObjectName("accentBtn");
+
   bottomLayout->addWidget(btnHome);
+  bottomLayout->addStretch();
   bottomLayout->addWidget(btnAddToCart);
   bottomLayout->addWidget(btnViewCart);
 
@@ -134,17 +178,25 @@ void RestaurantApp::createConsumerPage() {
 void RestaurantApp::createCartPage() {
   cartPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(cartPage);
+  layout->setContentsMargins(30, 30, 30, 30);
+  layout->setSpacing(20);
 
-  QLabel *title = new QLabel("Keranjang Anda (LIFO Stack)");
-  title->setObjectName("headerText");
+  QLabel *title = new QLabel("Keranjang Pemesanan Anda (LIFO Stack)");
+  title->setObjectName("pageHeader");
   cartListWidget = new QListWidget;
 
   QHBoxLayout *btnLayout = new QHBoxLayout;
-  QPushButton *btnUndo = new QPushButton("Batal (Pop / Undo)");
-  QPushButton *btnCheckout = new QPushButton("Checkout");
-  QPushButton *btnBack = new QPushButton("Kembali");
+  btnLayout->setSpacing(15);
+  QPushButton *btnUndo = new QPushButton("Batal Terakhir (Pop / Undo)");
+  QPushButton *btnCheckout = new QPushButton("Checkout Pesanan");
+  QPushButton *btnBack = new QPushButton("Kembali Belanja");
+
+  btnBack->setObjectName("secondaryBtn");
+  btnUndo->setObjectName("dangerBtn");
+  btnCheckout->setObjectName("primaryBtn");
 
   btnLayout->addWidget(btnBack);
+  btnLayout->addStretch();
   btnLayout->addWidget(btnUndo);
   btnLayout->addWidget(btnCheckout);
 
@@ -202,24 +254,55 @@ void RestaurantApp::updateCartUI() {
 // 4. LOGIN PAGE (Gerbang Pegawai)
 void RestaurantApp::createLoginPage() {
   loginPage = new QWidget;
-  QVBoxLayout *layout = new QVBoxLayout(loginPage);
-  layout->setAlignment(Qt::AlignCenter);
+  QVBoxLayout *mainLayout = new QVBoxLayout(loginPage);
+  mainLayout->setAlignment(Qt::AlignCenter);
+  mainLayout->setContentsMargins(40, 40, 40, 40);
+
+  QFrame *loginCard = new QFrame;
+  loginCard->setObjectName("loginCard");
+  QVBoxLayout *cardLayout = new QVBoxLayout(loginCard);
+  cardLayout->setContentsMargins(40, 40, 40, 40);
+  cardLayout->setSpacing(20);
+  cardLayout->setAlignment(Qt::AlignCenter);
+
+  QLabel *lockEmoji = new QLabel("🔐");
+  lockEmoji->setObjectName("logoEmoji");
+  lockEmoji->setAlignment(Qt::AlignCenter);
+
+  QLabel *title = new QLabel("Akses Pegawai");
+  title->setObjectName("homeTitle");
+  title->setAlignment(Qt::AlignCenter);
 
   QFormLayout *formLayout = new QFormLayout;
+  formLayout->setSpacing(15);
   QLineEdit *txtUser = new QLineEdit;
   QLineEdit *txtPass = new QLineEdit;
   txtPass->setEchoMode(QLineEdit::Password);
+  txtUser->setPlaceholderText("Username (kasir / koki)");
+  txtPass->setPlaceholderText("Password");
 
-  formLayout->addRow("Username:", txtUser);
-  formLayout->addRow("Password:", txtPass);
+  QLabel *lblUser = new QLabel("Username:");
+  lblUser->setObjectName("formLabel");
+  QLabel *lblPass = new QLabel("Password:");
+  lblPass->setObjectName("formLabel");
 
-  QPushButton *btnLogin = new QPushButton("Login");
-  QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
+  formLayout->addRow(lblUser, txtUser);
+  formLayout->addRow(lblPass, txtPass);
 
-  layout->addWidget(new QLabel("Login Pegawai"));
-  layout->addLayout(formLayout);
-  layout->addWidget(btnLogin);
-  layout->addWidget(btnHome);
+  QPushButton *btnLogin = new QPushButton("Login Pegawai");
+  QPushButton *btnHome = new QPushButton("Kembali");
+
+  btnLogin->setObjectName("primaryBtn");
+  btnHome->setObjectName("secondaryBtn");
+
+  cardLayout->addWidget(lockEmoji);
+  cardLayout->addWidget(title);
+  cardLayout->addLayout(formLayout);
+  cardLayout->addSpacing(15);
+  cardLayout->addWidget(btnLogin);
+  cardLayout->addWidget(btnHome);
+
+  mainLayout->addWidget(loginCard);
 
   connect(btnLogin, &QPushButton::clicked, this, [=]() {
     QString user = txtUser->text();
@@ -244,16 +327,28 @@ void RestaurantApp::createLoginPage() {
 void RestaurantApp::createCashierPage() {
   cashierPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(cashierPage);
+  layout->setContentsMargins(30, 30, 30, 30);
+  layout->setSpacing(20);
 
-  layout->addWidget(new QLabel("Dashboard Kasir - Antrean Pembayaran"));
+  QLabel *title = new QLabel("Dashboard Kasir - Antrean Pembayaran");
+  title->setObjectName("pageHeader");
   cashierListWidget = new QListWidget;
 
   QPushButton *btnPay = new QPushButton("Proses Pembayaran (Kirim ke Dapur)");
   QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
 
+  btnPay->setObjectName("primaryBtn");
+  btnHome->setObjectName("secondaryBtn");
+
+  layout->addWidget(title);
   layout->addWidget(cashierListWidget);
-  layout->addWidget(btnPay);
-  layout->addWidget(btnHome);
+  
+  QHBoxLayout *btnLayout = new QHBoxLayout;
+  btnLayout->setSpacing(15);
+  btnLayout->addWidget(btnHome);
+  btnLayout->addStretch();
+  btnLayout->addWidget(btnPay);
+  layout->addLayout(btnLayout);
 
   connect(btnPay, &QPushButton::clicked, this, [=]() {
     int row = cashierListWidget->currentRow();
@@ -290,8 +385,12 @@ void RestaurantApp::updateCashierUI() {
 void RestaurantApp::createKitchenPage() {
   kitchenPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(kitchenPage);
+  layout->setContentsMargins(30, 30, 30, 30);
+  layout->setSpacing(20);
 
-  layout->addWidget(new QLabel("Dashboard Dapur (FIFO Queue)"));
+  QLabel *title = new QLabel("Dashboard Dapur - Antrean Memasak (FIFO)");
+  title->setObjectName("pageHeader");
+  layout->addWidget(title);
   
   // Set up Scroll Area for Cards
   kitchenScrollArea = new QScrollArea;
@@ -303,18 +402,27 @@ void RestaurantApp::createKitchenPage() {
   kitchenQueueContainer->setLayout(kitchenQueueLayout);
   kitchenScrollArea->setWidget(kitchenQueueContainer);
 
+  layout->addWidget(kitchenScrollArea);
+
   currentCookingLabel = new QLabel("Sedang Dimasak: Belum ada");
   currentCookingLabel->setObjectName("highlightText");
+  layout->addWidget(currentCookingLabel);
 
   QPushButton *btnDequeue = new QPushButton("Masak Order Terdepan (Dequeue)");
   QPushButton *btnReady = new QPushButton("Tandai Siap Saji");
   QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
 
-  layout->addWidget(kitchenScrollArea);
-  layout->addWidget(currentCookingLabel);
-  layout->addWidget(btnDequeue);
-  layout->addWidget(btnReady);
-  layout->addWidget(btnHome);
+  btnDequeue->setObjectName("primaryBtn");
+  btnReady->setObjectName("accentBtn");
+  btnHome->setObjectName("secondaryBtn");
+
+  QHBoxLayout *btnLayout = new QHBoxLayout;
+  btnLayout->setSpacing(15);
+  btnLayout->addWidget(btnHome);
+  btnLayout->addStretch();
+  btnLayout->addWidget(btnDequeue);
+  btnLayout->addWidget(btnReady);
+  layout->addLayout(btnLayout);
 
   connect(btnDequeue, &QPushButton::clicked, this, [=]() {
     if (isCooking) {
@@ -388,16 +496,28 @@ void RestaurantApp::updateKitchenUI() {
 void RestaurantApp::createWaiterPage() {
   waiterPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(waiterPage);
+  layout->setContentsMargins(30, 30, 30, 30);
+  layout->setSpacing(20);
 
-  layout->addWidget(new QLabel("Dashboard Pelayan - Siap Antar"));
+  QLabel *title = new QLabel("Dashboard Pelayan - Antrean Pengantaran");
+  title->setObjectName("pageHeader");
   waiterListWidget = new QListWidget;
 
   QPushButton *btnDeliver = new QPushButton("Antar ke Meja / Selesai");
   QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
 
+  btnDeliver->setObjectName("primaryBtn");
+  btnHome->setObjectName("secondaryBtn");
+
+  layout->addWidget(title);
   layout->addWidget(waiterListWidget);
-  layout->addWidget(btnDeliver);
-  layout->addWidget(btnHome);
+  
+  QHBoxLayout *btnLayout = new QHBoxLayout;
+  btnLayout->setSpacing(15);
+  btnLayout->addWidget(btnHome);
+  btnLayout->addStretch();
+  btnLayout->addWidget(btnDeliver);
+  layout->addLayout(btnLayout);
 
   connect(btnDeliver, &QPushButton::clicked, this, [=]() {
     int row = waiterListWidget->currentRow();
@@ -426,66 +546,162 @@ void RestaurantApp::updateWaiterUI() {
 void RestaurantApp::applyStyles() {
   QString qss = R"(
           QMainWindow {
-              background-color: #f7f9fa;
+              background-color: #0f172a;
+          }
+          QFrame#homeCard, QFrame#loginCard {
+              background-color: #1e293b;
+              border: 1px solid #334155;
+              border-radius: 16px;
           }
           QLabel {
-              font-size: 14px;
-              color: #2c3e50;
-              font-weight: bold;
+              font-size: 13px;
+              color: #cbd5e1;
+              font-weight: 500;
               background-color: transparent;
           }
-          QLabel#headerText {
-              font-size: 24px;
-              color: #e74c3c;
-              margin-bottom: 20px;
+          QLabel#logoEmoji {
+              font-size: 56px;
+              margin-bottom: 5px;
+          }
+          QLabel#homeTitle {
+              font-size: 28px;
+              color: #f8fafc;
+              font-weight: 800;
+              margin-bottom: 5px;
+          }
+          QLabel#homeSubtitle {
+              font-size: 13px;
+              color: #94a3b8;
+              font-weight: normal;
+              margin-bottom: 10px;
+          }
+          QLabel#pageHeader {
+              font-size: 22px;
+              color: #f8fafc;
+              font-weight: 800;
+              border-bottom: 2px solid #334155;
+              padding-bottom: 12px;
+              margin-bottom: 10px;
+          }
+          QLabel#sectionHeader {
+              font-size: 14px;
+              color: #fbbf24;
+              font-weight: bold;
+              margin-bottom: 5px;
+          }
+          QLabel#formLabel {
+              font-size: 13px;
+              color: #cbd5e1;
+              font-weight: bold;
           }
           QLabel#highlightText {
-              font-size: 16px;
-              color: #d35400;
-              padding: 10px;
-              background-color: #fdebd0;
-              border-radius: 5px;
-          }
-          QPushButton {
-              background-color: #e74c3c;
-              color: white;
+              font-size: 15px;
+              color: #a5b4fc;
+              padding: 14px;
+              background-color: #312e81;
               border-radius: 8px;
-              padding: 12px;
-              font-size: 14px;
+              border: 1px solid #4338ca;
+              font-weight: bold;
+          }
+          QPushButton#primaryBtn {
+              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fbbf24, stop:1 #d97706);
+              color: #0f172a;
+              border-radius: 10px;
+              padding: 12px 24px;
+              font-size: 13px;
               font-weight: bold;
               border: none;
               min-width: 150px;
           }
-          QPushButton:hover {
-              background-color: #c0392b;
+          QPushButton#primaryBtn:hover {
+              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f59e0b, stop:1 #b45309);
           }
-          QPushButton:pressed {
-              background-color: #a93226;
+          QPushButton#primaryBtn:pressed {
+              background-color: #b45309;
+          }
+          QPushButton#accentBtn {
+              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #34d399, stop:1 #059669);
+              color: white;
+              border-radius: 10px;
+              padding: 12px 24px;
+              font-size: 13px;
+              font-weight: bold;
+              border: none;
+              min-width: 150px;
+          }
+          QPushButton#accentBtn:hover {
+              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #10b981, stop:1 #047857);
+          }
+          QPushButton#accentBtn:pressed {
+              background-color: #047857;
+          }
+          QPushButton#secondaryBtn {
+              background-color: transparent;
+              color: #94a3b8;
+              border: 1px solid #475569;
+              border-radius: 10px;
+              padding: 12px 24px;
+              font-size: 13px;
+              font-weight: bold;
+              min-width: 150px;
+          }
+          QPushButton#secondaryBtn:hover {
+              color: #f8fafc;
+              border-color: #94a3b8;
+              background-color: #1e293b;
+          }
+          QPushButton#secondaryBtn:pressed {
+              background-color: #0f172a;
+          }
+          QPushButton#dangerBtn {
+              background-color: transparent;
+              color: #ef4444;
+              border: 1px solid #ef4444;
+              border-radius: 10px;
+              padding: 12px 24px;
+              font-size: 13px;
+              font-weight: bold;
+              min-width: 150px;
+          }
+          QPushButton#dangerBtn:hover {
+              background-color: #ef4444;
+              color: white;
+          }
+          QPushButton#dangerBtn:pressed {
+              background-color: #991b1b;
           }
           QListWidget {
-              background-color: white;
-              color: #2c3e50;
-              border: 1px solid #bdc3c7;
-              border-radius: 8px;
-              padding: 5px;
-              font-size: 14px;
+              background-color: #1e293b;
+              color: #f8fafc;
+              border: 1px solid #334155;
+              border-radius: 12px;
+              padding: 8px;
+              font-size: 13px;
           }
           QListWidget::item {
-              color: #2c3e50;
-              padding: 10px;
-              border-bottom: 1px solid #ecf0f1;
+              color: #e2e8f0;
+              padding: 12px 16px;
+              border-bottom: 1px solid #334155;
+          }
+          QListWidget::item:hover {
+              background-color: #334155;
+              border-radius: 6px;
           }
           QListWidget::item:selected {
-              background-color: #fadbd8;
-              color: #c0392b;
+              background-color: #d97706;
+              color: white;
+              border-radius: 6px;
           }
           QLineEdit {
-              background-color: white;
-              color: #2c3e50;
-              padding: 10px;
-              border: 1px solid #bdc3c7;
-              border-radius: 5px;
-              font-size: 14px;
+              background-color: #0f172a;
+              color: #f8fafc;
+              padding: 12px;
+              border: 1px solid #334155;
+              border-radius: 8px;
+              font-size: 13px;
+          }
+          QLineEdit:focus {
+              border: 1px solid #f59e0b;
           }
           QScrollArea {
               border: none;
@@ -495,30 +711,48 @@ void RestaurantApp::applyStyles() {
               background-color: transparent;
           }
           QFrame#orderCard {
-              background-color: white;
-              border: 1px solid #dcdde1;
+              background-color: #1e293b;
+              border: 1px solid #334155;
               border-radius: 12px;
               padding: 15px;
               margin-bottom: 10px;
           }
           QLabel#cardHeader {
-              font-size: 16px;
-              color: #2c3e50;
+              font-size: 15px;
+              color: #f8fafc;
               font-weight: bold;
-              border-bottom: 1px solid #f1f2f6;
+              border-bottom: 1px solid #334155;
               padding-bottom: 5px;
               margin-bottom: 5px;
           }
           QLabel#cardItemText {
               font-size: 13px;
-              color: #57606f;
+              color: #94a3b8;
               font-weight: normal;
           }
           QLabel#cardStatus {
-              font-size: 12px;
-              color: #e67e22;
+              font-size: 11px;
+              color: #f59e0b;
               font-weight: bold;
               margin-top: 5px;
+          }
+          QScrollBar:vertical {
+              border: none;
+              background: #0f172a;
+              width: 8px;
+              margin: 0px;
+          }
+          QScrollBar::handle:vertical {
+              background: #475569;
+              min-height: 20px;
+              border-radius: 4px;
+          }
+          QScrollBar::handle:vertical:hover {
+              background: #64748b;
+          }
+          QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+              border: none;
+              background: none;
           }
       )";
   qApp->setStyleSheet(qss);
