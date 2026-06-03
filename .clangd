@@ -1,0 +1,4 @@
+CompileFlags:
+  CompilationDatabase: build
+  Add: [--target=x86_64-w64-mingw32]
+  QueryDriver: C:/Qt/Tools/mingw1310_64/bin/g++.exe
