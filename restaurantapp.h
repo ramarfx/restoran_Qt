@@ -10,6 +10,8 @@
 #include <QList>
 #include <QScrollArea>
 #include <QVBoxLayout>
+#include <QPixmap>
+#include <QDir>
 #include "models.h"
 
 class RestaurantApp : public QMainWindow {
