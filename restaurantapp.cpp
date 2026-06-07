@@ -52,13 +52,11 @@ void RestaurantApp::createHomePage() {
   cardLayout->setSpacing(20);
   cardLayout->setAlignment(Qt::AlignCenter);
 
-  QLabel *logoEmoji = new QLabel("🍳");
+  QPixmap pixmaps(":/image/logo.png");
+  QLabel *logoEmoji = new QLabel(this);
   logoEmoji->setObjectName("logoEmoji");
   logoEmoji->setAlignment(Qt::AlignCenter);
-
-  QLabel *title = new QLabel("Gourmet POS");
-  title->setObjectName("homeTitle");
-  title->setAlignment(Qt::AlignCenter);
+  logoEmoji->setPixmap(pixmaps);
 
   QLabel *subtitle = new QLabel("Sistem Manajemen & Pemesanan Kasir Kafe");
   subtitle->setObjectName("homeSubtitle");
@@ -73,9 +71,7 @@ void RestaurantApp::createHomePage() {
   btnWaiter->setObjectName("secondaryBtn");
 
   cardLayout->addWidget(logoEmoji);
-  cardLayout->addWidget(title);
   cardLayout->addWidget(subtitle);
-  cardLayout->addSpacing(15);
   cardLayout->addWidget(btnConsumer);
   cardLayout->addWidget(btnLogin);
   cardLayout->addWidget(btnWaiter);
@@ -94,84 +90,111 @@ void RestaurantApp::createHomePage() {
 
 // 2. KONSUMEN PAGE (Menu & Katalog)
 void RestaurantApp::createConsumerPage() {
-  consumerPage = new QWidget;
-  QVBoxLayout *mainLayout = new QVBoxLayout(consumerPage);
-  mainLayout->setContentsMargins(30, 30, 30, 30);
-  mainLayout->setSpacing(20);
+    consumerPage = new QWidget;
+    QVBoxLayout *mainLayout = new QVBoxLayout(consumerPage);
+    mainLayout->setContentsMargins(30, 30, 30, 30);
+    mainLayout->setSpacing(20);
 
-  QLabel *header = new QLabel("Katalog Pemesanan Konsumen");
-  header->setObjectName("pageHeader");
-  mainLayout->addWidget(header);
+    QLabel *header = new QLabel("Katalog Pemesanan Konsumen");
+    header->setObjectName("pageHeader");
+    mainLayout->addWidget(header);
 
-  QHBoxLayout *contentLayout = new QHBoxLayout;
-  contentLayout->setSpacing(20);
+    QHBoxLayout *contentLayout = new QHBoxLayout;
+    contentLayout->setSpacing(20);
 
-  // Panel Kiri: Kategori
-  QVBoxLayout *leftPanel = new QVBoxLayout;
-  leftPanel->setSpacing(10);
-  QLabel *lblCategory = new QLabel("Pilih Kategori");
-  lblCategory->setObjectName("sectionHeader");
-  QListWidget *categoryList = new QListWidget;
-  categoryList->addItems({"Makanan Utama", "Minuman", "Cemilan", "Dessert"});
-  leftPanel->addWidget(lblCategory);
-  leftPanel->addWidget(categoryList);
+    // Panel Kiri: Kategori
+    QVBoxLayout *leftPanel = new QVBoxLayout;
+    leftPanel->setSpacing(10);
+    QLabel *lblCategory = new QLabel("Pilih Kategori");
+    lblCategory->setObjectName("sectionHeader");
+    QListWidget *categoryList = new QListWidget;
+    categoryList->addItems({"Makanan Utama", "Minuman", "Cemilan", "Dessert"});
+    leftPanel->addWidget(lblCategory);
+    leftPanel->addWidget(categoryList);
 
-  // Panel Kanan: Katalog
-  QVBoxLayout *rightPanel = new QVBoxLayout;
-  rightPanel->setSpacing(10);
-  QLabel *lblCatalog = new QLabel("Pilihan Menu Makanan & Minuman");
-  lblCatalog->setObjectName("sectionHeader");
-  QListWidget *catalogList = new QListWidget;
-  catalogList->addItems(
-      {"Nasi Goreng Spesial - Rp 35.000", "Steak Wagyu - Rp 150.000",
-       "Es Teh Manis - Rp 10.000", "Pudding Coklat - Rp 25.000"});
-  rightPanel->addWidget(lblCatalog);
-  rightPanel->addWidget(catalogList);
+    // Panel Kanan: Katalog
+    QVBoxLayout *rightPanel = new QVBoxLayout;
+    rightPanel->setSpacing(10);
+    QLabel *lblCatalog = new QLabel("Pilihan Menu Makanan & Minuman");
+    lblCatalog->setObjectName("sectionHeader");
+    QListWidget *catalogList = new QListWidget;
 
-  contentLayout->addLayout(leftPanel, 1);
-  contentLayout->addLayout(rightPanel, 2);
+    // --- MODIFIKASI DATA & LOGIKA DI SINI ---
 
-  // Tombol Bawah
-  QHBoxLayout *bottomLayout = new QHBoxLayout;
-  bottomLayout->setSpacing(15);
-  QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
-  QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
-  QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
+    // Data Master Menu berdasarkan Kategori
+    QMap<QString, QStringList> menuData;
+    menuData["Makanan Utama"] = {"Nasi Goreng Spesial - Rp 35.000", "Steak Wagyu - Rp 150.000", "Ayam Bakar Madu - Rp 40.000"};
+    menuData["Minuman"]       = {"Es Teh Manis - Rp 10.000", "Kopi Susu Gula Aren - Rp 18.000", "Jus Alpukat - Rp 22.000"};
+    menuData["Cemilan"]       = {"Kentang Goreng - Rp 20.000", "Cireng Crispy - Rp 15.000"};
+    menuData["Dessert"]       = {"Pudding Coklat - Rp 25.000", "Ice Cream Vanilla - Rp 18.000"};
 
-  btnHome->setObjectName("secondaryBtn");
-  btnAddToCart->setObjectName("primaryBtn");
-  btnViewCart->setObjectName("accentBtn");
+    // Set default item pertama (Makanan Utama) aktif saat halaman dibuka
+    categoryList->setCurrentRow(0);
+    catalogList->addItems(menuData["Makanan Utama"]);
 
-  bottomLayout->addWidget(btnHome);
-  bottomLayout->addStretch();
-  bottomLayout->addWidget(btnAddToCart);
-  bottomLayout->addWidget(btnViewCart);
+    // KONEKSI SIGNAL & SLOT UNTUK ON PRESSED / CLICKED KATEGORI
+    connect(categoryList, &QListWidget::itemClicked, this, [=](QListWidgetItem *item) {
+        // 1. Bersihkan katalog menu kanan terlebih dahulu
+        catalogList->clear();
 
-  mainLayout->addLayout(contentLayout);
-  mainLayout->addLayout(bottomLayout);
+        // 2. Ambil teks kategori yang diklik (misal: "Minuman")
+        QString selectedCategory = item->text();
 
-  // Logika Tambah Keranjang
-  connect(btnAddToCart, &QPushButton::clicked, this, [=]() {
-    if (catalogList->currentItem()) {
-      QString text = catalogList->currentItem()->text();
-      QString name = text.split(" - ")[0];
-      int price = text.split(" - ")[1].remove("Rp ").replace(".", "").toInt();
+        // 3. Ambil list menu yang sesuai dan masukkan ke katalog kanan
+        if (menuData.contains(selectedCategory)) {
+            catalogList->addItems(menuData[selectedCategory]);
+        }
+    });
 
-      cartStack.push({name, price}); // PUSH ke Stack
-      btnViewCart->setText(
-          QString("Lihat Keranjang (%1)").arg(cartStack.size()));
-    } else {
-      QMessageBox::warning(this, "Pilih",
-                           "Silakan pilih makanan dari katalog dulu.");
-    }
-  });
+    // --- AKHIR MODIFIKASI ---
 
-  connect(btnViewCart, &QPushButton::clicked, this, [=]() {
-    updateCartUI();
-    stackedWidget->setCurrentIndex(2);
-  });
-  connect(btnHome, &QPushButton::clicked, this,
-          [=]() { stackedWidget->setCurrentIndex(0); });
+    rightPanel->addWidget(lblCatalog);
+    rightPanel->addWidget(catalogList);
+
+    contentLayout->addLayout(leftPanel, 1);
+    contentLayout->addLayout(rightPanel, 2);
+
+    // Tombol Bawah
+    QHBoxLayout *bottomLayout = new QHBoxLayout;
+    bottomLayout->setSpacing(15);
+    QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
+    QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
+    QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
+
+    btnHome->setObjectName("secondaryBtn");
+    btnAddToCart->setObjectName("primaryBtn");
+    btnViewCart->setObjectName("accentBtn");
+
+    bottomLayout->addWidget(btnHome);
+    bottomLayout->addStretch();
+    bottomLayout->addWidget(btnAddToCart);
+    bottomLayout->addWidget(btnViewCart);
+
+    mainLayout->addLayout(contentLayout);
+    mainLayout->addLayout(bottomLayout);
+
+    // Logika Tambah Keranjang
+    connect(btnAddToCart, &QPushButton::clicked, this, [=]() {
+        if (catalogList->currentItem()) {
+            QString text = catalogList->currentItem()->text();
+            QString name = text.split(" - ")[0];
+            int price = text.split(" - ")[1].remove("Rp ").replace(".", "").toInt();
+
+            cartStack.push({name, price}); // PUSH ke Stack
+            btnViewCart->setText(
+                QString("Lihat Keranjang (%1)").arg(cartStack.size()));
+        } else {
+            QMessageBox::warning(this, "Pilih",
+                                 "Silakan pilih makanan dari katalog dulu.");
+        }
+    });
+
+    connect(btnViewCart, &QPushButton::clicked, this, [=]() {
+        updateCartUI();
+        stackedWidget->setCurrentIndex(2);
+    });
+    connect(btnHome, &QPushButton::clicked, this,
+            [=]() { stackedWidget->setCurrentIndex(0); });
 }
 
 // 3. CART PAGE (Logika Stack)
@@ -542,218 +565,3 @@ void RestaurantApp::updateWaiterUI() {
   }
 }
 
-// UI QSS STYLING (Biar Cakep Sesuai Request)
-void RestaurantApp::applyStyles() {
-  QString qss = R"(
-          QMainWindow {
-              background-color: #0f172a;
-          }
-          QFrame#homeCard, QFrame#loginCard {
-              background-color: #1e293b;
-              border: 1px solid #334155;
-              border-radius: 16px;
-          }
-          QLabel {
-              font-size: 13px;
-              color: #cbd5e1;
-              font-weight: 500;
-              background-color: transparent;
-          }
-          QLabel#logoEmoji {
-              font-size: 56px;
-              margin-bottom: 5px;
-          }
-          QLabel#homeTitle {
-              font-size: 28px;
-              color: #f8fafc;
-              font-weight: 800;
-              margin-bottom: 5px;
-          }
-          QLabel#homeSubtitle {
-              font-size: 13px;
-              color: #94a3b8;
-              font-weight: normal;
-              margin-bottom: 10px;
-          }
-          QLabel#pageHeader {
-              font-size: 22px;
-              color: #f8fafc;
-              font-weight: 800;
-              border-bottom: 2px solid #334155;
-              padding-bottom: 12px;
-              margin-bottom: 10px;
-          }
-          QLabel#sectionHeader {
-              font-size: 14px;
-              color: #fbbf24;
-              font-weight: bold;
-              margin-bottom: 5px;
-          }
-          QLabel#formLabel {
-              font-size: 13px;
-              color: #cbd5e1;
-              font-weight: bold;
-          }
-          QLabel#highlightText {
-              font-size: 15px;
-              color: #a5b4fc;
-              padding: 14px;
-              background-color: #312e81;
-              border-radius: 8px;
-              border: 1px solid #4338ca;
-              font-weight: bold;
-          }
-          QPushButton#primaryBtn {
-              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fbbf24, stop:1 #d97706);
-              color: #0f172a;
-              border-radius: 10px;
-              padding: 12px 24px;
-              font-size: 13px;
-              font-weight: bold;
-              border: none;
-              min-width: 150px;
-          }
-          QPushButton#primaryBtn:hover {
-              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f59e0b, stop:1 #b45309);
-          }
-          QPushButton#primaryBtn:pressed {
-              background-color: #b45309;
-          }
-          QPushButton#accentBtn {
-              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #34d399, stop:1 #059669);
-              color: white;
-              border-radius: 10px;
-              padding: 12px 24px;
-              font-size: 13px;
-              font-weight: bold;
-              border: none;
-              min-width: 150px;
-          }
-          QPushButton#accentBtn:hover {
-              background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #10b981, stop:1 #047857);
-          }
-          QPushButton#accentBtn:pressed {
-              background-color: #047857;
-          }
-          QPushButton#secondaryBtn {
-              background-color: transparent;
-              color: #94a3b8;
-              border: 1px solid #475569;
-              border-radius: 10px;
-              padding: 12px 24px;
-              font-size: 13px;
-              font-weight: bold;
-              min-width: 150px;
-          }
-          QPushButton#secondaryBtn:hover {
-              color: #f8fafc;
-              border-color: #94a3b8;
-              background-color: #1e293b;
-          }
-          QPushButton#secondaryBtn:pressed {
-              background-color: #0f172a;
-          }
-          QPushButton#dangerBtn {
-              background-color: transparent;
-              color: #ef4444;
-              border: 1px solid #ef4444;
-              border-radius: 10px;
-              padding: 12px 24px;
-              font-size: 13px;
-              font-weight: bold;
-              min-width: 150px;
-          }
-          QPushButton#dangerBtn:hover {
-              background-color: #ef4444;
-              color: white;
-          }
-          QPushButton#dangerBtn:pressed {
-              background-color: #991b1b;
-          }
-          QListWidget {
-              background-color: #1e293b;
-              color: #f8fafc;
-              border: 1px solid #334155;
-              border-radius: 12px;
-              padding: 8px;
-              font-size: 13px;
-          }
-          QListWidget::item {
-              color: #e2e8f0;
-              padding: 12px 16px;
-              border-bottom: 1px solid #334155;
-          }
-          QListWidget::item:hover {
-              background-color: #334155;
-              border-radius: 6px;
-          }
-          QListWidget::item:selected {
-              background-color: #d97706;
-              color: white;
-              border-radius: 6px;
-          }
-          QLineEdit {
-              background-color: #0f172a;
-              color: #f8fafc;
-              padding: 12px;
-              border: 1px solid #334155;
-              border-radius: 8px;
-              font-size: 13px;
-          }
-          QLineEdit:focus {
-              border: 1px solid #f59e0b;
-          }
-          QScrollArea {
-              border: none;
-              background-color: transparent;
-          }
-          QWidget#kitchenQueueContainer {
-              background-color: transparent;
-          }
-          QFrame#orderCard {
-              background-color: #1e293b;
-              border: 1px solid #334155;
-              border-radius: 12px;
-              padding: 15px;
-              margin-bottom: 10px;
-          }
-          QLabel#cardHeader {
-              font-size: 15px;
-              color: #f8fafc;
-              font-weight: bold;
-              border-bottom: 1px solid #334155;
-              padding-bottom: 5px;
-              margin-bottom: 5px;
-          }
-          QLabel#cardItemText {
-              font-size: 13px;
-              color: #94a3b8;
-              font-weight: normal;
-          }
-          QLabel#cardStatus {
-              font-size: 11px;
-              color: #f59e0b;
-              font-weight: bold;
-              margin-top: 5px;
-          }
-          QScrollBar:vertical {
-              border: none;
-              background: #0f172a;
-              width: 8px;
-              margin: 0px;
-          }
-          QScrollBar::handle:vertical {
-              background: #475569;
-              min-height: 20px;
-              border-radius: 4px;
-          }
-          QScrollBar::handle:vertical:hover {
-              background: #64748b;
-          }
-          QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-              border: none;
-              background: none;
-          }
-      )";
-  qApp->setStyleSheet(qss);
-}
