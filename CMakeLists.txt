@@ -21,6 +21,15 @@ qt_add_executable(appkasir_kafe
 
     appkasir_kafe.qrc
     styles.cpp
+    algorithms.cpp
+    algorithms.h
+    pages/page_home.cpp
+    pages/page_consumer.cpp
+    pages/page_cart.cpp
+    pages/page_login.cpp
+    pages/page_cashier.cpp
+    pages/page_kitchen.cpp
+    pages/page_waiter.cpp
 
 )
 
@@ -40,6 +49,8 @@ set_target_properties(appkasir_kafe PROPERTIES
 target_link_libraries(appkasir_kafe
     PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets
 )
+
+target_include_directories(appkasir_kafe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS appkasir_kafe
     BUNDLE DESTINATION .
