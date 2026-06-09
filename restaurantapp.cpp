@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QComboBox>
+#include <algorithm>
 
 RestaurantApp::RestaurantApp(QWidget *parent)
     : QMainWindow(parent), orderCounter(1) {
@@ -16,6 +18,7 @@ RestaurantApp::RestaurantApp(QWidget *parent)
   setupUI();
   applyStyles();
 }
+
 
 void RestaurantApp::setupUI() {
   stackedWidget = new QStackedWidget(this);
@@ -90,111 +93,197 @@ void RestaurantApp::createHomePage() {
 
 // 2. KONSUMEN PAGE (Menu & Katalog)
 void RestaurantApp::createConsumerPage() {
-    consumerPage = new QWidget;
-    QVBoxLayout *mainLayout = new QVBoxLayout(consumerPage);
-    mainLayout->setContentsMargins(30, 30, 30, 30);
-    mainLayout->setSpacing(20);
+  consumerPage = new QWidget;
+  QVBoxLayout *mainLayout = new QVBoxLayout(consumerPage);
+  mainLayout->setContentsMargins(30, 30, 30, 30);
+  mainLayout->setSpacing(20);
 
-    QLabel *header = new QLabel("Katalog Pemesanan Konsumen");
-    header->setObjectName("pageHeader");
-    mainLayout->addWidget(header);
+  QLabel *header = new QLabel("Katalog Pemesanan Konsumen");
+  header->setObjectName("pageHeader");
+  mainLayout->addWidget(header);
 
-    QHBoxLayout *contentLayout = new QHBoxLayout;
-    contentLayout->setSpacing(20);
+  QHBoxLayout *contentLayout = new QHBoxLayout;
+  contentLayout->setSpacing(20);
 
-    // Panel Kiri: Kategori
-    QVBoxLayout *leftPanel = new QVBoxLayout;
-    leftPanel->setSpacing(10);
-    QLabel *lblCategory = new QLabel("Pilih Kategori");
-    lblCategory->setObjectName("sectionHeader");
-    QListWidget *categoryList = new QListWidget;
-    categoryList->addItems({"Makanan Utama", "Minuman", "Cemilan", "Dessert"});
-    leftPanel->addWidget(lblCategory);
-    leftPanel->addWidget(categoryList);
+  // Panel Kiri: Kategori
+  QVBoxLayout *leftPanel = new QVBoxLayout;
+  leftPanel->setSpacing(10);
+  QLabel *lblCategory = new QLabel("Pilih Kategori");
+  lblCategory->setObjectName("sectionHeader");
+  QListWidget *categoryList = new QListWidget;
+  categoryList->addItems({"Semua", "Makanan Utama", "Minuman", "Cemilan", "Dessert"});
+  leftPanel->addWidget(lblCategory);
+  leftPanel->addWidget(categoryList);
 
-    // Panel Kanan: Katalog
-    QVBoxLayout *rightPanel = new QVBoxLayout;
-    rightPanel->setSpacing(10);
-    QLabel *lblCatalog = new QLabel("Pilihan Menu Makanan & Minuman");
-    lblCatalog->setObjectName("sectionHeader");
-    QListWidget *catalogList = new QListWidget;
+  // Panel Kanan: Katalog
+  QVBoxLayout *rightPanel = new QVBoxLayout;
+  rightPanel->setSpacing(10);
+  QLabel *lblCatalog = new QLabel("Pilihan Menu Makanan & Minuman");
+  lblCatalog->setObjectName("sectionHeader");
+  QListWidget *catalogList = new QListWidget;
 
-    // --- MODIFIKASI DATA & LOGIKA DI SINI ---
+  // --- MODIFIKASI DATA & LOGIKA DI SINI ---
 
-    // Data Master Menu berdasarkan Kategori
-    QMap<QString, QStringList> menuData;
-    menuData["Makanan Utama"] = {"Nasi Goreng Spesial - Rp 35.000", "Steak Wagyu - Rp 150.000", "Ayam Bakar Madu - Rp 40.000"};
-    menuData["Minuman"]       = {"Es Teh Manis - Rp 10.000", "Kopi Susu Gula Aren - Rp 18.000", "Jus Alpukat - Rp 22.000"};
-    menuData["Cemilan"]       = {"Kentang Goreng - Rp 20.000", "Cireng Crispy - Rp 15.000"};
-    menuData["Dessert"]       = {"Pudding Coklat - Rp 25.000", "Ice Cream Vanilla - Rp 18.000"};
+  // Data Master Menu berdasarkan Kategori
+  QMap<QString, QStringList> menuData;
+  menuData["Makanan Utama"] = {"Nasi Goreng Spesial - Rp 35.000",
+                               "Steak Wagyu - Rp 150.000",
+                               "Ayam Bakar Madu - Rp 40.000"};
+  menuData["Minuman"] = {"Es Teh Manis - Rp 10.000",
+                         "Kopi Susu Gula Aren - Rp 18.000",
+                         "Jus Alpukat - Rp 22.000"};
+  menuData["Cemilan"] = {"Kentang Goreng - Rp 20.000",
+                         "Cireng Crispy - Rp 15.000"};
+  menuData["Dessert"] = {"Pudding Coklat - Rp 25.000",
+                         "Ice Cream Vanilla - Rp 18.000"};
 
-    // Set default item pertama (Makanan Utama) aktif saat halaman dibuka
-    categoryList->setCurrentRow(0);
-    catalogList->addItems(menuData["Makanan Utama"]);
+  // Tambahkan Input Pencarian dan Dropdown Pengurutan
+  QHBoxLayout *filterLayout = new QHBoxLayout;
+  filterLayout->setSpacing(10);
 
-    // KONEKSI SIGNAL & SLOT UNTUK ON PRESSED / CLICKED KATEGORI
-    connect(categoryList, &QListWidget::itemClicked, this, [=](QListWidgetItem *item) {
-        // 1. Bersihkan katalog menu kanan terlebih dahulu
-        catalogList->clear();
+  QLineEdit *searchBar = new QLineEdit;
+  searchBar->setPlaceholderText("Cari menu...");
+  searchBar->setObjectName("searchBar");
 
-        // 2. Ambil teks kategori yang diklik (misal: "Minuman")
-        QString selectedCategory = item->text();
+  QComboBox *sortCombo = new QComboBox;
+  sortCombo->addItems({
+      "Default (Tanpa Urutan)",
+      "Harga: Terendah ke Tertinggi",
+      "Harga: Tertinggi ke Terendah",
+      "Nama: A-Z",
+      "Nama: Z-A"
+  });
+  sortCombo->setObjectName("sortCombo");
 
-        // 3. Ambil list menu yang sesuai dan masukkan ke katalog kanan
-        if (menuData.contains(selectedCategory)) {
-            catalogList->addItems(menuData[selectedCategory]);
+  filterLayout->addWidget(searchBar, 2);
+  filterLayout->addWidget(sortCombo, 1);
+
+  // Lambda untuk mengupdate dan memfilter/mengurutkan katalog
+  auto updateCatalog = [=]() {
+    catalogList->clear();
+    QListWidgetItem *catItem = categoryList->currentItem();
+    if (!catItem) return;
+
+    QString selectedCategory = catItem->text();
+    QStringList rawItems;
+    if (selectedCategory == "Semua") {
+        for (auto it = menuData.begin(); it != menuData.end(); ++it) {
+            rawItems.append(it.value());
         }
-    });
+    } else {
+        if (!menuData.contains(selectedCategory)) return;
+        rawItems = menuData[selectedCategory];
+    }
 
-    // --- AKHIR MODIFIKASI ---
+    QString searchText = searchBar->text().trimmed().toLower();
+    int sortOption = sortCombo->currentIndex(); // 0: Default, 1: Harga Terendah, 2: Harga Tertinggi, 3: Nama A-Z, 4: Nama Z-A
 
-    rightPanel->addWidget(lblCatalog);
-    rightPanel->addWidget(catalogList);
+    struct ParsedItem {
+        QString originalText;
+        QString name;
+        int price;
+    };
 
-    contentLayout->addLayout(leftPanel, 1);
-    contentLayout->addLayout(rightPanel, 2);
+    QList<ParsedItem> items;
+    for (const QString &itemText : rawItems) {
+        QStringList parts = itemText.split(" - ");
+        if (parts.size() < 2) continue;
 
-    // Tombol Bawah
-    QHBoxLayout *bottomLayout = new QHBoxLayout;
-    bottomLayout->setSpacing(15);
-    QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
-    QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
-    QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
+        QString name = parts[0];
+        QString priceStr = parts[1];
+        int price = priceStr.remove("Rp ").replace(".", "").toInt();
 
-    btnHome->setObjectName("secondaryBtn");
-    btnAddToCart->setObjectName("primaryBtn");
-    btnViewCart->setObjectName("accentBtn");
-
-    bottomLayout->addWidget(btnHome);
-    bottomLayout->addStretch();
-    bottomLayout->addWidget(btnAddToCart);
-    bottomLayout->addWidget(btnViewCart);
-
-    mainLayout->addLayout(contentLayout);
-    mainLayout->addLayout(bottomLayout);
-
-    // Logika Tambah Keranjang
-    connect(btnAddToCart, &QPushButton::clicked, this, [=]() {
-        if (catalogList->currentItem()) {
-            QString text = catalogList->currentItem()->text();
-            QString name = text.split(" - ")[0];
-            int price = text.split(" - ")[1].remove("Rp ").replace(".", "").toInt();
-
-            cartStack.push({name, price}); // PUSH ke Stack
-            btnViewCart->setText(
-                QString("Lihat Keranjang (%1)").arg(cartStack.size()));
-        } else {
-            QMessageBox::warning(this, "Pilih",
-                                 "Silakan pilih makanan dari katalog dulu.");
+        // Filter pencarian
+        if (!searchText.isEmpty() && !name.toLower().contains(searchText)) {
+            continue;
         }
-    });
 
-    connect(btnViewCart, &QPushButton::clicked, this, [=]() {
-        updateCartUI();
-        stackedWidget->setCurrentIndex(2);
-    });
-    connect(btnHome, &QPushButton::clicked, this,
-            [=]() { stackedWidget->setCurrentIndex(0); });
+        items.append({itemText, name, price});
+    }
+
+    // Pengurutan
+    if (sortOption == 1) { // Harga Terendah ke Tertinggi
+        std::sort(items.begin(), items.end(), [](const ParsedItem &a, const ParsedItem &b) {
+            return a.price < b.price;
+        });
+    } else if (sortOption == 2) { // Harga Tertinggi ke Terendah
+        std::sort(items.begin(), items.end(), [](const ParsedItem &a, const ParsedItem &b) {
+            return a.price > b.price;
+        });
+    } else if (sortOption == 3) { // Nama A-Z
+        std::sort(items.begin(), items.end(), [](const ParsedItem &a, const ParsedItem &b) {
+            return a.name.localeAwareCompare(b.name) < 0;
+        });
+    } else if (sortOption == 4) { // Nama Z-A
+        std::sort(items.begin(), items.end(), [](const ParsedItem &a, const ParsedItem &b) {
+            return a.name.localeAwareCompare(b.name) > 0;
+        });
+    }
+
+    // Tampilkan ke UI
+    for (const auto &item : items) {
+        catalogList->addItem(item.originalText);
+    }
+  };
+
+  // Koneksi Sinyal & Slot
+  connect(categoryList, &QListWidget::itemSelectionChanged, this, updateCatalog);
+  connect(searchBar, &QLineEdit::textChanged, this, [=](const QString &) { updateCatalog(); });
+  connect(sortCombo, &QComboBox::currentIndexChanged, this, [=](int) { updateCatalog(); });
+
+  // Set default item pertama (Makanan Utama) aktif saat halaman dibuka
+  categoryList->setCurrentRow(0);
+
+  // --- AKHIR MODIFIKASI ---
+
+  rightPanel->addWidget(lblCatalog);
+  rightPanel->addLayout(filterLayout);
+  rightPanel->addWidget(catalogList);
+
+  contentLayout->addLayout(leftPanel, 1);
+  contentLayout->addLayout(rightPanel, 2);
+
+  // Tombol Bawah
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->setSpacing(15);
+  QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
+  QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
+  QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
+
+  btnHome->setObjectName("secondaryBtn");
+  btnAddToCart->setObjectName("primaryBtn");
+  btnViewCart->setObjectName("accentBtn");
+
+  bottomLayout->addWidget(btnHome);
+  bottomLayout->addStretch();
+  bottomLayout->addWidget(btnAddToCart);
+  bottomLayout->addWidget(btnViewCart);
+
+  mainLayout->addLayout(contentLayout);
+  mainLayout->addLayout(bottomLayout);
+
+  // Logika Tambah Keranjang
+  connect(btnAddToCart, &QPushButton::clicked, this, [=]() {
+    if (catalogList->currentItem()) {
+      QString text = catalogList->currentItem()->text();
+      QString name = text.split(" - ")[0];
+      int price = text.split(" - ")[1].remove("Rp ").replace(".", "").toInt();
+
+      cartStack.push({name, price}); // PUSH ke Stack
+      btnViewCart->setText(
+          QString("Lihat Keranjang (%1)").arg(cartStack.size()));
+    } else {
+      QMessageBox::warning(this, "Pilih",
+                           "Silakan pilih makanan dari katalog dulu.");
+    }
+  });
+
+  connect(btnViewCart, &QPushButton::clicked, this, [=]() {
+    updateCartUI();
+    stackedWidget->setCurrentIndex(2);
+  });
+  connect(btnHome, &QPushButton::clicked, this,
+          [=]() { stackedWidget->setCurrentIndex(0); });
 }
 
 // 3. CART PAGE (Logika Stack)
@@ -267,8 +356,7 @@ void RestaurantApp::updateCartUI() {
   cartListWidget->clear();
   int total = 0;
   for (const auto &item : cartStack) {
-    cartListWidget->addItem(item.name + " - Rp " +
-                             QString::number(item.price));
+    cartListWidget->addItem(item.name + " - Rp " + QString::number(item.price));
     total += item.price;
   }
   cartListWidget->addItem(QString("\nTOTAL: Rp %1").arg(total));
@@ -365,7 +453,7 @@ void RestaurantApp::createCashierPage() {
 
   layout->addWidget(title);
   layout->addWidget(cashierListWidget);
-  
+
   QHBoxLayout *btnLayout = new QHBoxLayout;
   btnLayout->setSpacing(15);
   btnLayout->addWidget(btnHome);
@@ -386,8 +474,7 @@ void RestaurantApp::createCashierPage() {
               .arg(ord.orderId));
       updateCashierUI();
     } else {
-      QMessageBox::warning(this, "Pilih",
-                           "Pilih pesanan yang ingin dibayar.");
+      QMessageBox::warning(this, "Pilih", "Pilih pesanan yang ingin dibayar.");
     }
   });
   connect(btnHome, &QPushButton::clicked, this,
@@ -414,7 +501,7 @@ void RestaurantApp::createKitchenPage() {
   QLabel *title = new QLabel("Dashboard Dapur - Antrean Memasak (FIFO)");
   title->setObjectName("pageHeader");
   layout->addWidget(title);
-  
+
   // Set up Scroll Area for Cards
   kitchenScrollArea = new QScrollArea;
   kitchenScrollArea->setWidgetResizable(true);
@@ -455,8 +542,7 @@ void RestaurantApp::createKitchenPage() {
       return;
     }
     if (!kitchenQueue.isEmpty()) {
-      currentCookingOrder =
-          kitchenQueue.dequeue(); // Ambil dari antrean depan
+      currentCookingOrder = kitchenQueue.dequeue(); // Ambil dari antrean depan
       isCooking = true;
       currentCookingLabel->setText(QString("Sedang Dimasak: Order #%1")
                                        .arg(currentCookingOrder.orderId));
@@ -534,7 +620,7 @@ void RestaurantApp::createWaiterPage() {
 
   layout->addWidget(title);
   layout->addWidget(waiterListWidget);
-  
+
   QHBoxLayout *btnLayout = new QHBoxLayout;
   btnLayout->setSpacing(15);
   btnLayout->addWidget(btnHome);
@@ -564,4 +650,3 @@ void RestaurantApp::updateWaiterUI() {
         QString("Order #%1 - SIAP DIANTAR").arg(ord.orderId));
   }
 }
-

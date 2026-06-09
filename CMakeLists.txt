@@ -18,8 +18,10 @@ qt_add_executable(appkasir_kafe
     restaurantapp.cpp
     restaurantapp.h
     models.h
-    styles.cpp
+
     appkasir_kafe.qrc
+    styles.cpp
+
 )
 
 qt_add_resources(appkasir_kafe appkasir_kafe.qrc)
