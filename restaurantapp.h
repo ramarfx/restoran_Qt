@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QListWidget>
+#include <QPushButton>
 #include <QLabel>
 #include <QStack>
 #include <QQueue>
@@ -35,6 +36,7 @@ private:
 
   // Komponen Dinamis
   QListWidget *cartListWidget;
+  QPushButton *btnViewCart;
   QListWidget *cashierListWidget;
   QScrollArea *kitchenScrollArea;
   QWidget *kitchenQueueContainer;
@@ -42,11 +44,11 @@ private:
   QListWidget *waiterListWidget;
   QLabel *currentCookingLabel;
 
-  // Struktur Data Sesuai Flowchart
-  QStack<FoodItem> cartStack; // STACK: Keranjang (LIFO untuk Undo)
-  QQueue<Order> kitchenQueue; // QUEUE: Antrean Dapur (FIFO)
-  QList<Order> cashierOrders; // List Kasir (Menunggu Pembayaran)
-  QList<Order> waiterOrders;  // List Pelayan (Siap Antar)
+  // Struktur Data
+  QList<FoodItem> cartItems;  // LIST: Keranjang
+  QQueue<Order> kitchenQueue; // QUEUE: Antrean Dapur
+  QList<Order> cashierOrders; // List Kasir)
+  QList<Order> waiterOrders;  // List Pelayan
 
   Order currentCookingOrder;
   bool isCooking = false;

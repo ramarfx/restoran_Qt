@@ -141,7 +141,7 @@ void RestaurantApp::createConsumerPage() {
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->setSpacing(15);
   QPushButton *btnAddToCart = new QPushButton("Tambah ke Keranjang");
-  QPushButton *btnViewCart = new QPushButton("Lihat Keranjang (0)");
+  btnViewCart = new QPushButton("Lihat Keranjang (0)");
   QPushButton *btnHome = new QPushButton("Kembali ke Beranda");
 
   btnHome->setObjectName("secondaryBtn");
@@ -163,9 +163,9 @@ void RestaurantApp::createConsumerPage() {
       QString name = text.split(" - ")[0];
       int price = text.split(" - ")[1].remove("Rp ").replace(".", "").toInt();
 
-      cartStack.push({name, price}); // PUSH ke Stack
+      cartItems.append({name, price}); // Tambah ke List
       btnViewCart->setText(
-          QString("Lihat Keranjang (%1)").arg(cartStack.size()));
+          QString("Lihat Keranjang (%1)").arg(cartItems.size()));
     } else {
       QMessageBox::warning(this, "Pilih",
                            "Silakan pilih makanan dari katalog dulu.");
@@ -183,9 +183,13 @@ void RestaurantApp::createConsumerPage() {
 void RestaurantApp::updateCartUI() {
   cartListWidget->clear();
   int total = 0;
-  for (const auto &item : cartStack) {
+  for (const auto &item : cartItems) {
     cartListWidget->addItem(item.name + " - Rp " + QString::number(item.price));
     total += item.price;
   }
   cartListWidget->addItem(QString("\nTOTAL: Rp %1").arg(total));
+
+  if (btnViewCart) {
+    btnViewCart->setText(QString("Lihat Keranjang (%1)").arg(cartItems.size()));
+  }
 }
