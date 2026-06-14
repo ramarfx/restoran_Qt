@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QPixmap>
 
-// 1. HOME PAGE (Beranda Pemilihan Role)
+// 1. HOME PAGE
 void RestaurantApp::createHomePage() {
   homePage = new QWidget;
   QVBoxLayout *mainLayout = new QVBoxLayout(homePage);

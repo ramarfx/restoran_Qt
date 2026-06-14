@@ -7,7 +7,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-// 4. LOGIN PAGE (Gerbang Pegawai)
+// 4. LOGIN PAGE
 void RestaurantApp::createLoginPage() {
   loginPage = new QWidget;
   QVBoxLayout *mainLayout = new QVBoxLayout(loginPage);

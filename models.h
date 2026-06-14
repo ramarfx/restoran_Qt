@@ -15,4 +15,4 @@ struct Order {
   QString status;
 };
 
-#endif // MODELS_H
+#endif

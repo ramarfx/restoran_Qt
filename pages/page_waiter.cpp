@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-// 7. WAITER PAGE (Output Akhir)
+// 7. WAITER PAGE
 void RestaurantApp::createWaiterPage() {
   waiterPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(waiterPage);

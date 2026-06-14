@@ -52,4 +52,4 @@ void sort(QList<FoodItem>& items, int sortOption) {
     }
 }
 
-} // namespace MenuAlgorithms
+}

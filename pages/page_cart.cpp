@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-// 3. CART PAGE (Logika List)
+// 3. CART PAGE
 void RestaurantApp::createCartPage() {
   cartPage = new QWidget;
   QVBoxLayout *layout = new QVBoxLayout(cartPage);
@@ -65,7 +65,7 @@ void RestaurantApp::createCartPage() {
         this, "Sukses",
         "Pesanan berhasil di-checkout. Silakan bayar di Kasir.");
     updateCartUI();
-    stackedWidget->setCurrentIndex(0); // Balik ke Home
+    stackedWidget->setCurrentIndex(0); 
   });
 
   connect(btnBack, &QPushButton::clicked, this,
