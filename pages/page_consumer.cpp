@@ -104,9 +104,23 @@ void RestaurantApp::createConsumerPage() {
     }
 
     QString searchText = searchBar->text();
-    int sortOption = sortCombo->currentIndex(); // 0: Default, 1: Harga Terendah, 2: Harga Tertinggi, 3: Nama A-Z, 4: Nama Z-A
+    int sortOption = sortCombo->currentIndex();
 
-    QList<FoodItem> items = MenuAlgorithms::search(rawItems, searchText);
+    // Bangun Custom Hash Map dari item kategori saat ini
+    HashMap menuMap(100);
+    for (const auto &item : rawItems) {
+        menuMap.insert(item.name, item);
+    }
+
+    // Cari menggunakan Custom Hash Map (Exact O(1) lookup, atau Partial search)
+    QList<FoodItem> items;
+    QString cleanQuery = searchText.trimmed();
+    const FoodItem* exactItem = menuMap.get(cleanQuery);
+    if (exactItem != nullptr) {
+        items.append(*exactItem);
+    } else {
+        items = menuMap.searchPartial(cleanQuery);
+    }
     MenuAlgorithms::sort(items, sortOption);
 
     // Tampilkan ke UI

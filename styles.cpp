@@ -4,8 +4,6 @@
 #include <QTextStream>
 #include <QDebug>
 
-// UI QSS STYLING (Tema Nobu Light & Luxury)
-// Loaded dynamically from Qt resource :/main.qss
 void RestaurantApp::applyStyles() {
     QFile file(":/main.qss");
     if (file.open(QFile::ReadOnly | QFile::Text)) {

@@ -56,8 +56,8 @@ void RestaurantApp::createCartPage() {
 
     Order newOrder;
     newOrder.orderId = orderCounter++;
-    newOrder.status = "Belum Dibayar";
-    newOrder.items = cartItems;
+    newOrder.status  = "Belum Dibayar";
+    newOrder.items   = cartItems.toQList(); // DLL → QList untuk Order
     cartItems.clear();
 
     cashierOrders.append(newOrder);

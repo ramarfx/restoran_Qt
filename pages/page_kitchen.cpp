@@ -1,11 +1,11 @@
 #include "restaurantapp.h"
-#include <QVBoxLayout>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QScrollArea>
-#include <QFrame>
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QVBoxLayout>
 
 // 6. KITCHEN PAGE (Logika Queue)
 void RestaurantApp::createKitchenPage() {
@@ -92,7 +92,6 @@ void RestaurantApp::updateKitchenUI() {
     delete item;
   }
 
-  // Add cards for each order in queue
   for (const auto &ord : kitchenQueue) {
     QFrame *card = new QFrame;
     card->setObjectName("orderCard");
@@ -101,8 +100,6 @@ void RestaurantApp::updateKitchenUI() {
     QLabel *lblOrderId = new QLabel(QString("Order #%1").arg(ord.orderId));
     lblOrderId->setObjectName("cardHeader");
     cardLayout->addWidget(lblOrderId);
-
-    // Add each food item in the order
     for (const auto &food : ord.items) {
       QLabel *lblFood = new QLabel(QString("• %1").arg(food.name));
       lblFood->setObjectName("cardItemText");

@@ -6,7 +6,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <QStack>
+// QStack replaced by DoublyLinkedList in models.h
 #include <QQueue>
 #include <QList>
 #include <QScrollArea>
@@ -45,10 +45,10 @@ private:
   QLabel *currentCookingLabel;
 
   // Struktur Data
-  QList<FoodItem> cartItems;  // LIST: Keranjang
-  QQueue<Order> kitchenQueue; // QUEUE: Antrean Dapur
-  QList<Order> cashierOrders; // List Kasir)
-  QList<Order> waiterOrders;  // List Pelayan
+  DoublyLinkedList<FoodItem> cartItems;  // DLL: Keranjang Belanja
+  QQueue<Order> kitchenQueue;            // QUEUE: Antrean Dapur
+  QList<Order> cashierOrders;            // QList: Antrean Kasir
+  DoublyLinkedList<Order> waiterOrders;  // DLL: Riwayat Transaksi Pelayan
 
   Order currentCookingOrder;
   bool isCooking = false;
@@ -74,4 +74,4 @@ private:
   void applyStyles();
 };
 
-#endif // RESTAURANTAPP_H
+#endif
