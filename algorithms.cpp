@@ -140,4 +140,4 @@ void sort(QList<FoodItem> &items, int sortOption) {
   quickSort(items, 0, items.size() - 1, sortOption);
 }
 
-} // namespace MenuAlgorithms
+}

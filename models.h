@@ -13,6 +13,9 @@ struct Order {
     int orderId;
     QList<FoodItem> items;
     QString status;
+    QString customerName;  // Nama pelanggan
+    int tableNumber;       // Nomor meja (0 = takeaway)
+    int queueNumber;       // Nomor antrian
 };
 
 template<typename T>

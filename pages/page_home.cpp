@@ -1,8 +1,16 @@
 #include "restaurantapp.h"
-#include <QVBoxLayout>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QFrame>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QSpinBox>
+#include <QVBoxLayout>
 #include <QPixmap>
 
 // 1. HOME PAGE
@@ -29,9 +37,9 @@ void RestaurantApp::createHomePage() {
   subtitle->setObjectName("homeSubtitle");
   subtitle->setAlignment(Qt::AlignCenter);
 
-  QPushButton *btnConsumer = new QPushButton("Pesan Makanan (Konsumen)");
-  QPushButton *btnLogin = new QPushButton("Login Pegawai (Kasir / Dapur)");
-  QPushButton *btnWaiter = new QPushButton("Area Pelayan (Output)");
+  QPushButton *btnConsumer = new QPushButton("🍽  Pesan Makanan (Konsumen)");
+  QPushButton *btnLogin    = new QPushButton("🔐  Login Pegawai (Kasir / Dapur)");
+  QPushButton *btnWaiter   = new QPushButton("🛎  Area Pelayan");
 
   btnConsumer->setObjectName("primaryBtn");
   btnLogin->setObjectName("secondaryBtn");
@@ -45,8 +53,14 @@ void RestaurantApp::createHomePage() {
 
   mainLayout->addWidget(homeCard);
 
-  connect(btnConsumer, &QPushButton::clicked, this,
-          [=]() { stackedWidget->setCurrentIndex(1); });
+  // Tombol konsumen: langsung masuk menu
+  connect(btnConsumer, &QPushButton::clicked, this, [=]() {
+    // Reset keranjang untuk sesi baru
+    cartItems.clear();
+    btnViewCart->setText("🛒  Keranjang (0)");
+    stackedWidget->setCurrentIndex(1);
+  });
+
   connect(btnLogin, &QPushButton::clicked, this,
           [=]() { stackedWidget->setCurrentIndex(3); });
   connect(btnWaiter, &QPushButton::clicked, this, [=]() {

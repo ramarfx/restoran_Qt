@@ -1,9 +1,10 @@
 #include "restaurantapp.h"
 
 RestaurantApp::RestaurantApp(QWidget *parent)
-    : QMainWindow(parent), orderCounter(1) {
+    : QMainWindow(parent), orderCounter(1), queueCounter(1),
+      currentTableNumber(0), currentQueueNumber(0) {
   setWindowTitle("Gourmet POS - Sistem Pemesanan Restoran");
-  resize(800, 600);
+  resize(900, 650);
   setupUI();
   applyStyles();
 }

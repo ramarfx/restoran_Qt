@@ -1,19 +1,20 @@
 #ifndef RESTAURANTAPP_H
 #define RESTAURANTAPP_H
 
-#include <QMainWindow>
-#include <QStackedWidget>
-#include <QListWidget>
-#include <QPushButton>
 #include <QLabel>
-// QStack replaced by DoublyLinkedList in models.h
-#include <QQueue>
+#include <QListWidget>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QStackedWidget>
+
+#include "models.h"
+#include <QDir>
 #include <QList>
+#include <QPixmap>
+#include <QQueue>
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include <QPixmap>
-#include <QDir>
-#include "models.h"
+
 
 class RestaurantApp : public QMainWindow {
   Q_OBJECT
@@ -34,27 +35,41 @@ private:
   QWidget *kitchenPage;
   QWidget *waiterPage;
 
-  // Komponen Dinamis
+  // Komponen
   QListWidget *cartListWidget;
   QPushButton *btnViewCart;
+  QLabel      *cartTotalLabel;
   QListWidget *cashierListWidget;
+  QLabel      *cashierDetailLabel;
   QScrollArea *kitchenScrollArea;
-  QWidget *kitchenQueueContainer;
+  QWidget     *kitchenQueueContainer;
   QVBoxLayout *kitchenQueueLayout;
   QListWidget *waiterListWidget;
-  QLabel *currentCookingLabel;
+  QLabel      *currentCookingLabel;
+
+  // Info Customer saat ini (sesi pemesanan)
+  QString currentCustomerName;
+  int     currentTableNumber;   // 0 = takeaway
+  int     currentQueueNumber;
+
+  // Label info customer di consumer page
+  QLabel *customerInfoLabel;
 
   // Struktur Data
-  DoublyLinkedList<FoodItem> cartItems;  // DLL: Keranjang Belanja
-  QQueue<Order> kitchenQueue;            // QUEUE: Antrean Dapur
-  QList<Order> cashierOrders;            // QList: Antrean Kasir
-  DoublyLinkedList<Order> waiterOrders;  // DLL: Riwayat Transaksi Pelayan
+  // DLL: Keranjang Belanja
+  DoublyLinkedList<FoodItem> cartItems;
+  // QUEUE: Antrean Dapur
+  QQueue<Order> kitchenQueue;
+  // QList: Antrean Kasir
+  QList<Order> cashierOrders;
+  // DLL: Riwayat Transaksi Pelayan
+  DoublyLinkedList<Order> waiterOrders;
 
   Order currentCookingOrder;
-  bool isCooking = false;
-  int orderCounter;
+  bool  isCooking = false;
+  int   orderCounter;
+  int   queueCounter;
 
-  // Helper functions for UI setup
   void setupUI();
   void createHomePage();
   void createConsumerPage();
@@ -64,7 +79,6 @@ private:
   void createKitchenPage();
   void createWaiterPage();
 
-  // Helper functions for updating UI
   void updateCartUI();
   void updateCashierUI();
   void updateKitchenUI();
